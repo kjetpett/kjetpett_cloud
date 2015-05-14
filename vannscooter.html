@@ -1,0 +1,102 @@
+ <!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <!--
+    Apple-Specific Meta Tag Keys
+    https://developer.apple.com/library/safari/documentation/AppleApplications/Reference/SafariHTMLRef/Articles/MetaTags.html#//apple_ref/doc/uid/TP40008193-SW2
+    -->
+    <!-- // Safari iOS apps only -->
+    <!-- Sets whether a web application runs in full-screen mode -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Sets the style of the status bar for a web application -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- // Chrome for Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <link rel="stylesheet" href="http://js.arcgis.com/3.13/esri/css/esri.css">
+
+    <style>
+        html, body, #mapDiv {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+    <script src="http://js.arcgis.com/3.13/"></script>
+
+    <script>
+        var map;
+        require([
+                    "esri/layers/ArcGISDynamicMapServiceLayer",
+                    "esri/layers/ArcGISTiledMapServiceLayer",
+                    "esri/layers/ImageParameters",
+                    "esri/geometry/Extent",
+                    "esri/map",
+                    "dojo/domReady!"
+                ],
+        function (
+                ArcGISDynamicMapServiceLayer,
+                ArcGISTiledMapServiceLayer,
+                ImageParameters,
+                Extent,
+                Map
+        )
+        {
+            var basiskartUrl = "https://services.geodataonline.no/arcgis/rest/services/Geocache_UTM33_WGS84/GeocacheBasis/MapServer";
+            var basiskartLayer = new ArcGISTiledMapServiceLayer(basiskartUrl,{
+                id: "bakgrunnslayer",
+                showAttribution: true,
+                format: "jpeg",
+                fadeOnZoom: true
+            });
+
+            var heleNorgeExtent = new Extent({
+                xmin: 100000,
+                ymin: 6300000,
+                xmax: 500000,
+                ymax: 8195000,
+                'spatialReference': {'wkid': 32633}
+            });
+
+            map = new Map("mapDiv", {
+                extent: heleNorgeExtent,
+                navigationMode: 'css-transforms',
+                logo: false
+            });
+            var imageParameters = new ImageParameters();
+            imageParameters.format = "PNG24";
+
+
+            var naturvernUrl = "http://arcgis1.miljodirektoratet.no/arcgis/rest/services/vannscooter/TotalforbudVern/MapServer";
+            var naturvernLayer = new ArcGISDynamicMapServiceLayer(naturvernUrl,{
+                "id": "TotalforbudVern"
+            });
+
+            var vannUrl = "http://arcgis1.miljodirektoratet.no/arcgis/rest/services/vannscooter/Forbudsbelter/MapServer";
+            var vannLayer = new ArcGISDynamicMapServiceLayer(vannUrl,{
+                id: "Forbudsbelter",
+                imageParateters: imageParameters
+            });
+            vannLayer.setVisibleLayers([0,1,2,3]);
+
+            map.addLayer(basiskartLayer);
+            map.addLayer(naturvernLayer);
+
+        });
+    </script>
+
+    <title>Vannscooter forbudsområder</title>
+</head>
+<body>
+<div id="topplinje" style="height: 29px;">
+    <img  src="grafikk/miljodir_logo_liten.png" style="height: 29px; padding: 0px"/>
+</div>
+
+<div id="mapDiv"></div>
+
+</body>
+</html>
